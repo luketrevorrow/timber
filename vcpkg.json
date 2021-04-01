@@ -1,0 +1,8 @@
+{
+    "name": "timber",
+    "version-string": "0.0.1",
+    "dependencies": [
+        "fmt",
+        "sfml"
+    ]
+}
