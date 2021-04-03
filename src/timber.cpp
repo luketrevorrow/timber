@@ -3,6 +3,14 @@
 
 #include <sstream>
 
+// function declarations
+void update_branches(int seed);
+int constexpr NUM_BRANCHES = 6;
+sf::Sprite branches[NUM_BRANCHES];
+
+enum class side { LEFT, RIGHT, NONE };
+side branch_positions[NUM_BRANCHES];
+
 int main()
 {
     // create a video object and create a window
@@ -94,6 +102,18 @@ int main()
                             text_rect.height / 2.0f);
     message_text.setPosition(1920 / 2.0f, 1080 / 2.0f);
     score_text.setPosition(20, 20);
+
+    // prepare six branches
+    sf::Texture branch_texture;
+    branch_texture.loadFromFile("../graphics/branch.png");
+    // set the texture for each branch sprite
+    for (int i = 0; i < NUM_BRANCHES; i++)
+    {
+        branches[i].setTexture(branch_texture);
+        branches[i].setPosition(-2000, -2000);
+        // position the sprite in the dead centre
+        branches[i].setOrigin(200, 20);
+    }
 
     while (window.isOpen())
     {
@@ -245,11 +265,33 @@ int main()
                 }
             }
 
-            // update the score test
+            // update the score text
             std::stringstream ss;
             //ss << "Score = " << score;
             ss << "Score = " << time_remaining;
             score_text.setString(ss.str());
+
+            for (int i = 0; i < NUM_BRANCHES; i++)
+            {
+                float height = i * 150;
+                if (branch_positions[i] == side::LEFT)
+                {
+                    // move to the left side and flip the sprite
+                    branches[i].setPosition(610, height);
+                    branches[i].setRotation(180);
+                }
+                else if (branch_positions[i] == side::RIGHT)
+                {
+                    // move sprite to the right side
+                    branches[i].setPosition(1330, height);
+                    branches[i].setRotation(0);
+                }
+                else
+                {
+                    // hide the branch
+                    branches[i].setPosition(3000,height);
+                }
+            }
         }
 
         // draw the scene
@@ -257,6 +299,11 @@ int main()
         window.draw(cloud1_sprite);
         window.draw(cloud2_sprite);
         window.draw(cloud3_sprite);
+        // draw the branches
+        for (int i = 0; i < NUM_BRANCHES; i++)
+        {
+            window.draw(branches[i]);
+        }
         window.draw(tree_sprite);
         window.draw(bee_sprite);
 
@@ -274,4 +321,29 @@ int main()
     }
     
     return 0;
+}
+
+void update_branches(int seed)
+{
+    for (int j = NUM_BRANCHES - 1; j > 0 ; j--)
+    {
+        branch_positions[j] = branch_positions[j - 1];
+    }
+
+    // spawn a new branch at position 0
+    // LEFT, RIGHT, or NONE
+    srand((int)time(0)+seed);
+    int r = (rand() % 5);
+    switch (r)
+    {
+    case 0:
+        branch_positions[0] = side::LEFT;
+        break;
+    case 1:
+        branch_positions[0] = side::RIGHT;
+        break;
+    default:
+        branch_positions[0] = side::NONE;
+        break;
+    }
 }
